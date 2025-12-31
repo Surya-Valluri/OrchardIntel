@@ -1,0 +1,5 @@
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "ALLOWALL"
+    Permissions-Policy = "geolocation=(self \"https://*.wixsite.com\" \"https://*.wixstudio.com\")"
