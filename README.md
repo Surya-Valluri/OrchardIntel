@@ -1,4 +1,3 @@
-
 # OrchardIntel: Apple Disease Detector with Planet Climate Risk Advisor
 
 A **React + TypeScript** app for apple leaf disease prediction, dataset management, model training simulation, climate risk analysis with **Planet map viewer**, and **Supabase Edge Functions** integration.
@@ -28,13 +27,19 @@ A **React + TypeScript** app for apple leaf disease prediction, dataset manageme
 - Planet WMTS map viewer + Open-Meteo climate data
 - Per-disease tie-breaker weights (~1.05–1.1)
 
-### Additional Features
-- **28 Planet Insights Layers** → PSRI (Fire Blight), ExG (Leaf Disease), NDMI (Scab Risk)
-- **Drilldown UI** → 5 groups: Vegetation / Apple Disease / Moisture / Visual / Other
-- **Live Kashmir Orchards** → 34.1°N, 74.8°E (Sopore apple belt)
-- **Supabase Edge Functions** → Planet API proxy
-- **Leaflet Maps** → WMTS tiles streaming
-- 
+### 🎯 AOI Live Fetch & Risk Analysis (NEW)
+- **Single Point Mode**: Click on map → fetch climate data for exact location via `planet-insights`
+- **Boundary (AOI) Mode**: Draw polygon/line/rectangle on map → fetch aggregated climate data for entire area via `planet-aoi` Edge Function
+- **Live Button**: Single button triggers appropriate fetch based on selected mode
+- **Climate Data Retrieved**:
+  - Temperature, rainfall, humidity, wind speed, soil moisture, canopy humidity, wetness hours
+- **Risk Analysis Computed**:
+  - Risk score (0-100) based on temperature, humidity, leaf wetness, soil moisture, rainfall
+  - Risk levels: Low, Medium, High, Critical
+  - AI-powered recommendations for disease prevention (fungicide application, irrigation adjustment, etc.)
+- **Auto-fill Form**: Climate data + risk analysis auto-populate parent form for decision-making
+- **Layer Support**: All selected Planet layers included in AOI analysis requests
+
 ### 🌍 Advanced Planet Insights Layers
 
 ### 39 Planet WMTS Layers integrated (Vegetation, Apple Disease, Moisture, Visual & Stress indices)
@@ -45,7 +50,7 @@ A **React + TypeScript** app for apple leaf disease prediction, dataset manageme
 
 **Moisture & canopy stress** → NDWI, NDMI, LSWI, Soil Moisture Index
 
-**Visual & spectral context**→ True Color, False Color, Urban, SWIR
+**Visual & spectral context** → True Color, False Color, Urban, SWIR
 
 **Phase-2 research indices enabled** → MCARI, MTCI, TCARI, TSAVI, SIPI, WBI, VIGREEN
 
@@ -108,24 +113,25 @@ src/
     DatasetManager.tsx
     TrainingProgress.tsx
     ClimateRiskPredictor.tsx
-    PlanetMapViewer.tsx
+    PlanetMapViewer.tsx        # Single Point + AOI Boundary modes
     Auth.tsx
   services/
     datasetService.ts
     modelService.ts
     predictionService.ts
-    planetService.ts        # fetchPlanetInsights
+    planetService.ts           # fetchPlanetInsights (single point)
   utils/
     realClassifier.ts
     enhancedClassifier.ts
-    climateRiskRules.ts     # calculateDiseaseRisks / calculatePestRisks
+    climateRiskRules.ts        # calculateDiseaseRisks / calculatePestRisks
     imagePreprocessing.ts
 
 supabase/functions/
   predict-disease/
   train-model/
-  planet-proxy/             # WMTS tiles
-  planet-insights/          # Climate data
+  planet-proxy/                # WMTS tiles
+  planet-insights/             # Climate data (single point)
+  planet-aoi/                  # Climate + risk analysis (boundary AOI) - NEW
 ```
 
 ---
@@ -149,8 +155,17 @@ Configure parameters -> Start -> Live metrics (loss/accuracy)
 
 ### 4. Climate Risk Prediction
 ```
-Planet map -> Auto-fill climate -> Standard/Meta scoring -> Top risks
+Planet map -> Select mode (Point/AOI) -> Live button -> Climate + Risk data auto-filled
 ```
+
+#### Point Mode
+- Center map on location
+- Click **Live** to fetch climate data for that exact point
+
+#### Boundary (AOI) Mode
+- Draw shape (polygon, line, rectangle)
+- Click **Live** to fetch climate data for entire area
+- Receive risk analysis + treatment recommendations
 
 ---
 
@@ -159,6 +174,7 @@ Planet map -> Auto-fill climate -> Standard/Meta scoring -> Top risks
 - **Scoring (0–100):**
   - Standard: +20 per matched rule
   - Meta: Continuous climate ranges
+  - AOI Risk: Temperature (15-25°C optimal), Humidity (85%+ high risk), Leaf Wetness (12+ hours), Soil Moisture (50-80% optimal), Rainfall (20+ mm)
 - **Risk Levels:**
 
 | Range    | Level   |
@@ -166,6 +182,7 @@ Planet map -> Auto-fill climate -> Standard/Meta scoring -> Top risks
 | 0–30     | Low     |
 | 31–70    | Medium  |
 | 71–100   | High    |
+| 80+      | Critical |
 
 - Tie-breaker: `diseaseWeights` in `climateRiskRules.ts`
 
@@ -174,7 +191,7 @@ Planet map -> Auto-fill climate -> Standard/Meta scoring -> Top risks
 ## Supabase Setup
 
 ```bash
-supabase functions deploy predict-disease train-model planet-proxy planet-insights
+supabase functions deploy predict-disease train-model planet-proxy planet-insights planet-aoi
 ```
 
 **Function ENV variables:**
@@ -210,6 +227,7 @@ SUPABASE_SERVICE_ROLE_KEY=...
 | Planet 400       | Ensure `PLANET_API_KEY` is set in functions |
 | Folder upload    | Use Chrome/Edge and select a folder         |
 | No climate data  | Mock fallback is active                      |
+| AOI fetch fails  | Check `planet-aoi` function deployed; Open-Meteo API available |
 | Limited features | Add frontend `.env` variables               |
 
 ---
@@ -218,7 +236,7 @@ SUPABASE_SERVICE_ROLE_KEY=...
 
 ```bash
 git checkout -b feature/name
-# Add rule changes or examples
+# Add rule changes, AOI enhancements, or examples
 git push origin feature/name && create PR
 ```
 
