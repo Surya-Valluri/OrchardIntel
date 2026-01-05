@@ -369,18 +369,18 @@ For more information, please contact Zai14 through his Socials:
 
 ---
 
-## Roadmap 🗺️
+## 🗺️ Roadmap
 
-### Phase 2 (Upcoming)
+### 🚧 Phase 2 (Upcoming)
 - [ ] Historical trend analysis dashboard
 - [ ] Multi-field farm management
 - [ ] Mobile app (React Native)
-- [ ] Notification/alert system for critical risks
+- [ ] Notification / alert system for critical risks
 - [ ] Integrated treatment recommendation engine
 - [ ] Weather forecast integration (7-day ahead)
-- [ ] Export reports (PDF/CSV)
+- [ ] Export reports (PDF / CSV)
 
-### Phase 3 (Future)
+### 🔮 Phase 3 (Future)
 - [ ] Farmer community forum
 - [ ] Marketplace for treatments
 - [ ] Integration with smart farm equipment
