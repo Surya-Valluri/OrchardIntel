@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { fetchPlanetInsights } from '../services/planetService';
-import { saveAOI, getUserAOIs, deleteAllUserAOIs, deleteAOI, SavedAOI } from '../services/aoiService';
+import { saveAOI, getUserAOIs, deleteAllUserAOIs, deleteAOI, updateAOIName, SavedAOI } from '../services/aoiService';
 import { supabase } from '../services/supabaseClient';
 
 const LAYER_IDS = [
@@ -101,6 +101,94 @@ export const PlanetMapViewer: React.FC<Props> = ({
   // ✅ State for saved AOIs
   const [savedAOIs, setSavedAOIs] = useState<SavedAOI[]>([]);
   const [loadingAOIs, setLoadingAOIs] = useState(false);
+  const [selectedBoundaryId, setSelectedBoundaryId] = useState<string | null>(null);
+
+  // Mask overlay state
+  const maskLayerRef = useRef<any>(null);
+
+  // Remove mask overlay function
+  const removeMaskOverlay = () => {
+    const L = (window as any).L;
+    if (maskLayerRef.current && mapRef.current && L) {
+      mapRef.current.removeLayer(maskLayerRef.current);
+      maskLayerRef.current = null;
+    }
+  };
+
+  // Create mask overlay function
+  const createMaskOverlay = (shape: any) => {
+    const L = (window as any).L;
+    if (!mapRef.current || !L) return;
+
+    // Remove old mask if exists
+    if (maskLayerRef.current) {
+      mapRef.current.removeLayer(maskLayerRef.current);
+      maskLayerRef.current = null;
+    }
+
+    // Get ALL drawn shapes including the new one
+    const allShapes = [...drawnShapesRef.current];
+    if (!allShapes.includes(shape)) {
+      allShapes.push(shape);
+    }
+
+    // Calculate combined bounds of all shapes
+    let combinedBounds: any = null;
+    allShapes.forEach((s: any) => {
+      if (s && s.getBounds) {
+        const bounds = s.getBounds();
+        if (!combinedBounds) {
+          combinedBounds = bounds;
+        } else {
+          combinedBounds.extend(bounds);
+        }
+      }
+    });
+
+    if (!combinedBounds) return;
+
+    const padding = 1; // degrees
+
+    // Create outer rectangle (covers entire visible area)
+    const outerCoords = [
+      [combinedBounds.getNorth() + padding, combinedBounds.getWest() - padding],
+      [combinedBounds.getNorth() + padding, combinedBounds.getEast() + padding],
+      [combinedBounds.getSouth() - padding, combinedBounds.getEast() + padding],
+      [combinedBounds.getSouth() - padding, combinedBounds.getWest() - padding],
+      [combinedBounds.getNorth() + padding, combinedBounds.getWest() - padding]
+    ];
+
+    // Create holes for ALL shapes
+    const allHoles: any[] = [];
+    allShapes.forEach((s: any) => {
+      if (s && s.getLatLngs) {
+        const innerCoords = s.getLatLngs();
+        let innerLatLngs: any[] = [];
+        
+        if (innerCoords.length > 0) {
+          if (Array.isArray(innerCoords[0])) {
+            innerLatLngs = innerCoords[0];
+          } else {
+            innerLatLngs = innerCoords;
+          }
+          const hole = [...innerLatLngs];
+          hole.push(hole[0]); // close the path
+          allHoles.push(hole);
+        }
+      }
+    });
+
+    // Create mask polygon with multiple holes
+    const mask = L.polygon([outerCoords, ...allHoles], {
+      fillColor: '#000000',
+      fillOpacity: 0.99, // 99% dark overlay
+      stroke: false,
+      interactive: false
+    });
+
+    mask.addTo(mapRef.current);
+    maskLayerRef.current = mask;
+  };
 
   // Add conversion functions before the useEffect hooks
   const convertToGeoJSON = (
@@ -155,6 +243,13 @@ export const PlanetMapViewer: React.FC<Props> = ({
     checkUser();
   }, []);
 
+  // Remove mask when switching to point mode
+  useEffect(() => {
+    if (dataFetchMode === 'point') {
+      removeMaskOverlay();
+    }
+  }, [dataFetchMode]);
+
   // ✅ Load saved AOIs on mount
   useEffect(() => {
     const loadAOIs = async () => {
@@ -180,6 +275,11 @@ export const PlanetMapViewer: React.FC<Props> = ({
                 color: '#10b981',
                 weight: 3
               }).addTo(mapRef.current);
+              
+              // Create mask overlay for loaded line only if in boundary mode
+              if (dataFetchMode === 'boundary') {
+                createMaskOverlay(shape);
+              }
             } else if (aoi.geojson.geometry.type === 'Polygon') {
               const latLngs = coords[0].map((c: number[]) => [c[1], c[0]]);
               shape = L.polygon(latLngs, {
@@ -188,6 +288,11 @@ export const PlanetMapViewer: React.FC<Props> = ({
                 fillOpacity: 0.2,
                 weight: 2
               }).addTo(mapRef.current);
+              
+              // Create mask overlay for loaded polygon boundary only if in boundary mode
+              if (dataFetchMode === 'boundary') {
+                createMaskOverlay(shape);
+              }
             }
 
             if (shape) {
@@ -403,6 +508,11 @@ export const PlanetMapViewer: React.FC<Props> = ({
 
       if (shape && geoJSON) {
         drawnShapesRef.current.push(shape);
+        
+        // Create mask overlay only if in boundary mode
+        if (dataFetchMode === 'boundary') {
+          createMaskOverlay(shape);
+        }
         
         // ✅ Save to Supabase
         const savedAOI = await saveAOI(geoJSON, configId);
@@ -718,6 +828,72 @@ export const PlanetMapViewer: React.FC<Props> = ({
     }
   };
 
+  // Load and select a saved boundary by ID
+  const loadSavedBoundary = async (aoi: SavedAOI) => {
+    const L = (window as any).L;
+    if (!mapRef.current || !L) return;
+
+    // Clear existing drawings
+    drawnShapesRef.current.forEach((shape: any) => {
+      if (shape && mapRef.current) {
+        mapRef.current.removeLayer(shape);
+      }
+    });
+    drawnShapesRef.current = [];
+
+    // Set as selected
+    setSelectedBoundaryId(aoi.id);
+
+    const coords = aoi.geojson.geometry.coordinates;
+    let shape: any = null;
+
+    if (aoi.geojson.geometry.type === 'LineString') {
+      const latLngs = coords.map((c: number[]) => [c[1], c[0]]);
+      shape = L.polyline(latLngs, {
+        color: '#10b981',
+        weight: 3
+      }).addTo(mapRef.current);
+    } else if (aoi.geojson.geometry.type === 'Polygon') {
+      const latLngs = coords[0].map((c: number[]) => [c[1], c[0]]);
+      shape = L.polygon(latLngs, {
+        color: '#10b981',
+        fillColor: '#10b981',
+        fillOpacity: 0.2,
+        weight: 2
+      }).addTo(mapRef.current);
+    }
+
+    if (shape) {
+      drawnShapesRef.current.push(shape);
+      
+      // Create mask overlay if in boundary mode
+      if (dataFetchMode === 'boundary') {
+        createMaskOverlay(shape);
+      }
+
+      // Fit map to boundary
+      mapRef.current.fitBounds(shape.getBounds());
+
+      // Fetch climate data for this boundary
+      await fetchBoundaryData(aoi.geojson);
+    }
+  };
+
+  // Rename a saved boundary
+  const renameBoundary = async (aoiId: string, currentName: string) => {
+    const newName = prompt('Enter new name for this boundary:', currentName);
+    if (newName && newName !== currentName) {
+      const success = await updateAOIName(aoiId, newName);
+      if (success) {
+        setSavedAOIs(prev => 
+          prev.map(aoi => 
+            aoi.id === aoiId ? { ...aoi, name: newName } : aoi
+          )
+        );
+      }
+    }
+  };
+
   const handleLive = async () => {
     try {
       if (dataFetchMode === 'point') {
@@ -835,6 +1011,56 @@ export const PlanetMapViewer: React.FC<Props> = ({
         {/* BOUNDARY/AOI MODE */}
         {dataFetchMode === 'boundary' && (
           <div className="border-t pt-3">
+            {/* Saved Boundaries Section */}
+            {savedAOIs.length > 0 && (
+              <div className="mb-4">
+                <div className="text-xs font-semibold mb-2 flex items-center justify-between">
+                  <span>📍 Saved Boundaries ({savedAOIs.length})</span>
+                </div>
+                <div className="max-h-32 overflow-y-auto space-y-1 mb-3">
+                  {savedAOIs.map((aoi) => (
+                    <div
+                      key={aoi.id}
+                      className={`flex items-center gap-2 px-3 py-2 rounded text-xs transition-all ${
+                        selectedBoundaryId === aoi.id
+                          ? 'bg-green-500 text-white shadow-md'
+                          : 'bg-gray-50 border border-gray-200'
+                      }`}
+                    >
+                      <button
+                        onClick={() => loadSavedBoundary(aoi)}
+                        className="flex-1 text-left"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">{aoi.name || 'Unnamed Boundary'}</span>
+                          <span className="text-[10px] opacity-75">
+                            {aoi.geojson.geometry.type}
+                          </span>
+                        </div>
+                        <div className="text-[10px] opacity-75 mt-0.5">
+                          📅 {new Date(aoi.created_at).toLocaleDateString()}
+                        </div>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          renameBoundary(aoi.id, aoi.name || 'Unnamed Boundary');
+                        }}
+                        className={`px-2 py-1 rounded hover:bg-opacity-80 transition-colors ${
+                          selectedBoundaryId === aoi.id
+                            ? 'bg-green-600 text-white'
+                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
+                        title="Rename boundary"
+                      >
+                        ✏️
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-semibold">Drawing Tools (AOI)</span>
               {(drawnGeoJSON.length > 0 || savedAOIs.length > 0) && (
