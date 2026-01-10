@@ -40,7 +40,7 @@ export const PredictionResults: React.FC<PredictionResultsProps> = ({ result }) 
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-6 animate-fade-in">
       {/* Main Result */}
       <div className={`border-2 rounded-2xl p-6 ${getSeverityColor(result.topClass.severity)}`}>
         <div className="flex items-start justify-between mb-4">
@@ -49,7 +49,7 @@ export const PredictionResults: React.FC<PredictionResultsProps> = ({ result }) 
             <div>
               <h3 className="text-2xl font-bold text-gray-800">{result.topClass.name}</h3>
               <div className="flex items-center space-x-2 mt-1">
-                <span className={`text-lg font-semibold ${getConfidenceColor(result.confidence)}`}>
+                <span className={`text-lg font-semibold metric-value ${getConfidenceColor(result.confidence)}`}>
                   {result.confidence.toFixed(1)}% confidence
                 </span>
                 <Zap className={`w-4 h-4 ${getConfidenceColor(result.confidence)}`} />

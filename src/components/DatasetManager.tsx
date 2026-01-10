@@ -77,12 +77,12 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-8">
+    <div className="card card-lg">
       <div className="flex items-center space-x-3 mb-6">
-        <Database className="w-8 h-8 text-blue-600" />
-        <h2 className="text-2xl font-bold text-gray-800">Dataset Management</h2>
+        <Database className="w-8 h-8 text-green-600" />
+        <h2 className="text-2xl font-bold text-green-900">📊 Dataset Management</h2>
         {!isAuthenticated && (
-          <div className="flex items-center space-x-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">
+          <div className="flex items-center space-x-2 bg-amber-100 text-amber-800 px-3 py-1 rounded-full text-sm">
             <AlertCircle className="w-4 h-4" />
             <span>Demo Mode</span>
           </div>
@@ -101,8 +101,8 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
             onClick={() => setActiveTab(tab.id as any)}
             className={`flex items-center space-x-2 px-4 py-2 rounded-md font-medium transition-all duration-200 ${
               activeTab === tab.id
-                ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-800'
+                ? 'bg-white text-green-600 shadow-sm border border-green-200'
+                : 'text-gray-600 hover:text-green-600'
             }`}
           >
             <tab.icon className="w-4 h-4" />
@@ -115,12 +115,12 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
       {activeTab === 'upload' && (
         <div className="space-y-6">
           {!isAuthenticated && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
               <div className="flex items-start space-x-3">
-                <Info className="w-5 h-5 text-yellow-600 mt-0.5" />
+                <Info className="w-5 h-5 text-amber-600 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-yellow-800 mb-1">Demo Mode</h3>
-                  <p className="text-yellow-700 text-sm">
+                  <h3 className="font-semibold text-amber-800 mb-1">Demo Mode</h3>
+                  <p className="text-amber-700 text-sm">
                     Sign in to upload real datasets and train actual models. In demo mode, uploads are simulated.
                   </p>
                 </div>
@@ -128,15 +128,15 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
             </div>
           )}
           
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4">
             <div className="flex items-start space-x-3">
-              <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+              <Info className="w-5 h-5 text-green-600 mt-0.5" />
               <div>
-                <h3 className="font-semibold text-blue-800 mb-1">Dataset Structure</h3>
-                <p className="text-blue-700 text-sm mb-2">
+                <h3 className="font-semibold text-green-800 mb-1">Dataset Structure</h3>
+                <p className="text-green-700 text-sm mb-2">
                   Organize your images in folders by disease class:
                 </p>
-                <div className="bg-blue-100 rounded-lg p-3 font-mono text-xs text-blue-800">
+                <div className="bg-green-100 rounded-lg p-3 font-mono text-xs text-green-800">
                   <div>📁 your-dataset/</div>
                   <div className="ml-4">📁 healthy/</div>
                   <div className="ml-4">📁 apple_scab/</div>
@@ -159,7 +159,7 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
                 type="text"
                 value={datasetName}
                 onChange={(e) => setDatasetName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="e.g., Apple Disease Dataset v1"
                 required
               />
@@ -172,7 +172,7 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
                 type="text"
                 value={datasetDescription}
                 onChange={(e) => setDatasetDescription(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="Brief description of the dataset"
               />
             </div>
@@ -190,7 +190,7 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
                   onClick={() => setSelectedDatasetType(type)}
                   className={`p-4 rounded-xl border-2 transition-all duration-200 ${
                     selectedDatasetType === type
-                      ? 'border-blue-500 bg-blue-50'
+                      ? 'border-green-500 bg-green-50'
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
@@ -215,18 +215,18 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
             className={`
               border-3 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-300
               ${isDragActive 
-                ? 'border-blue-500 bg-blue-50 scale-105' 
-                : 'border-gray-300 hover:border-blue-400 hover:bg-blue-50'
+                ? 'border-green-500 bg-green-50 scale-105' 
+                : 'border-gray-300 hover:border-green-400 hover:bg-green-50'
               }
             `}
           >
             <input {...getInputProps()} />
             <div className="flex flex-col items-center space-y-4">
               <div className={`p-4 rounded-full transition-all duration-300 ${
-                isDragActive ? 'bg-blue-200' : 'bg-gray-100'
+                isDragActive ? 'bg-green-200' : 'bg-gray-100'
               }`}>
                 <Upload className={`w-12 h-12 transition-colors duration-300 ${
-                  isDragActive ? 'text-blue-600' : 'text-gray-500'
+                  isDragActive ? 'text-green-600' : 'text-gray-500'
                 }`} />
               </div>
               <div>
@@ -283,7 +283,7 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
                   </div>
                   
                   <div className="mt-4 pt-4 border-t border-gray-200">
-                    <button className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 text-sm font-medium">
+                    <button className="flex items-center space-x-2 text-green-600 hover:text-green-700 text-sm font-medium">
                       <BarChart3 className="w-4 h-4" />
                       <span>View Details</span>
                     </button>
@@ -299,12 +299,12 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
       {activeTab === 'train' && (
         <div className="space-y-6">
           {!isAuthenticated && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
               <div className="flex items-start space-x-3">
-                <Info className="w-5 h-5 text-yellow-600 mt-0.5" />
+                <Info className="w-5 h-5 text-amber-600 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-yellow-800 mb-1">Demo Mode</h3>
-                  <p className="text-yellow-700 text-sm">
+                  <h3 className="font-semibold text-amber-800 mb-1">Demo Mode</h3>
+                  <p className="text-amber-700 text-sm">
                     Sign in to train real models. Demo mode shows simulated training progress.
                   </p>
                 </div>
@@ -312,12 +312,12 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
             </div>
           )}
           
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4">
             <div className="flex items-start space-x-3">
-              <Info className="w-5 h-5 text-yellow-600 mt-0.5" />
+              <Info className="w-5 h-5 text-green-600 mt-0.5" />
               <div>
-                <h3 className="font-semibold text-yellow-800 mb-1">Training Requirements</h3>
-                <p className="text-yellow-700 text-sm">
+                <h3 className="font-semibold text-green-800 mb-1">Training Requirements</h3>
+                <p className="text-green-700 text-sm">
                   Ensure you have uploaded training, validation, and test datasets before starting training.
                 </p>
               </div>
@@ -336,7 +336,7 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
                   type="number"
                   value={trainingConfig.epochs}
                   onChange={(e) => setTrainingConfig(prev => ({ ...prev, epochs: parseInt(e.target.value) }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   min="1"
                   max="200"
                 />
@@ -349,7 +349,7 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
                 <select
                   value={trainingConfig.batchSize}
                   onChange={(e) => setTrainingConfig(prev => ({ ...prev, batchSize: parseInt(e.target.value) }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
                   <option value={16}>16</option>
                   <option value={32}>32</option>
@@ -366,7 +366,7 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
                   type="number"
                   value={trainingConfig.learningRate}
                   onChange={(e) => setTrainingConfig(prev => ({ ...prev, learningRate: parseFloat(e.target.value) }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   step="0.0001"
                   min="0.0001"
                   max="0.1"
@@ -385,7 +385,7 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
                   type="number"
                   value={trainingConfig.validationSplit}
                   onChange={(e) => setTrainingConfig(prev => ({ ...prev, validationSplit: parseFloat(e.target.value) }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   step="0.1"
                   min="0.1"
                   max="0.5"
@@ -398,31 +398,31 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
                   id="augmentation"
                   checked={trainingConfig.augmentation}
                   onChange={(e) => setTrainingConfig(prev => ({ ...prev, augmentation: e.target.checked }))}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
                 />
                 <label htmlFor="augmentation" className="text-sm font-medium text-gray-700">
                   Enable Data Augmentation
                 </label>
               </div>
 
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-medium text-gray-800 mb-2">Dataset Summary</h4>
-                <div className="space-y-1 text-sm text-gray-600">
+              <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                <h4 className="font-medium text-green-900 mb-2">Dataset Summary</h4>
+                <div className="space-y-1 text-sm text-green-700">
                   <div className="flex justify-between">
                     <span>Training sets:</span>
-                    <span>{datasets.filter(d => d.type === 'train').length}</span>
+                    <span className="font-semibold">{datasets.filter(d => d.type === 'train').length}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Validation sets:</span>
-                    <span>{datasets.filter(d => d.type === 'validation').length}</span>
+                    <span className="font-semibold">{datasets.filter(d => d.type === 'validation').length}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Test sets:</span>
-                    <span>{datasets.filter(d => d.type === 'test').length}</span>
+                    <span className="font-semibold">{datasets.filter(d => d.type === 'test').length}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Trained models:</span>
-                    <span>{models.filter(m => m.status === 'completed').length}</span>
+                    <span className="font-semibold">{models.filter(m => m.status === 'completed').length}</span>
                   </div>
                 </div>
               </div>
@@ -433,7 +433,7 @@ export const DatasetManager: React.FC<DatasetManagerProps> = ({
             <button
               onClick={handleStartTraining}
               disabled={datasets.filter(d => d.type === 'train').length === 0}
-              className="flex items-center space-x-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-blue-800 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              className="btn-primary px-8 py-4 text-lg flex items-center space-x-3 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Play className="w-6 h-6" />
               <span>Start Training</span>

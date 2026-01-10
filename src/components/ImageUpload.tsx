@@ -83,7 +83,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
               <img
                 src={preview}
                 alt="Selected apple leaf"
-                className="w-full h-64 object-cover"
+                className="w-full h-64 object-cover image-zoom"
               />
             )}
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">

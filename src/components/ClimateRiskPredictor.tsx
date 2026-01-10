@@ -72,6 +72,7 @@ export default function ClimateRiskPredictor(): JSX.Element {
     climateScore = Math.max(0, climateScore);
 
     // Disease Risk Score (0-50 points)
+    // Based on number of diseases: More diseases = Lower score, Fewer diseases = Higher score
     let diseaseScore = 50;
 
     if (diseaseResults.length > 0) {
@@ -81,21 +82,30 @@ export default function ClimateRiskPredictor(): JSX.Element {
       const mediumRiskCount = diseaseResults.filter(
         (r) => r.level === 'Medium'
       ).length;
-
-      // Deduct points for high and medium risks
-      diseaseScore -= highRiskCount * 15; // 15 points per high risk
-      diseaseScore -= mediumRiskCount * 8; // 8 points per medium risk
-
-      // Bonus if low risk diseases present
       const lowRiskCount = diseaseResults.filter(
         (r) => r.level === 'Low'
       ).length;
-      if (lowRiskCount > 0 && highRiskCount === 0) {
-        diseaseScore += 5;
+
+      // Calculate weighted penalty based on disease count and severity
+      const highPenalty = highRiskCount * 15;    // 15 points per high-risk disease
+      const mediumPenalty = mediumRiskCount * 8; // 8 points per medium-risk disease
+      
+      // Low-risk only affects score when >= 9
+      const lowPenalty = lowRiskCount >= 9 ? lowRiskCount * 3 : 0;
+
+      diseaseScore -= (highPenalty + mediumPenalty + lowPenalty);
+
+      // Bonus for having very few diseases
+      const totalDiseases = highRiskCount + mediumRiskCount + lowRiskCount;
+      if (totalDiseases <= 2 && highRiskCount === 0) {
+        diseaseScore += 10; // Bonus for minimal disease presence
       }
+    } else {
+      // No diseases = Maximum score
+      diseaseScore = 50;
     }
 
-    diseaseScore = Math.max(0, diseaseScore);
+    diseaseScore = Math.max(0, Math.min(50, diseaseScore));
 
     // Total Farm Health Score (0-100)
     const totalScore = Math.round((climateScore + diseaseScore) / 2);
@@ -233,13 +243,13 @@ export default function ClimateRiskPredictor(): JSX.Element {
   const healthColors = getHealthColorClasses(farmHealthScore);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-4 h-full flex flex-col">
+    <div className="card card-lg h-full flex flex-col">
       {/* HEADER */}
-      <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
+      <div className="flex items-center justify-between mb-4 pb-3 border-b border-green-200">
         <div className="flex items-center space-x-2">
-          <Cloud className="w-4 h-4 text-blue-600" />
-          <span className="text-sm text-gray-700 font-semibold">
-            Climate Risk Predictor
+          <Cloud className="w-5 h-5 text-green-600" />
+          <span className="text-lg font-semibold text-green-900">
+            🌤️ Climate Risk Predictor
           </span>
         </div>
         <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
@@ -268,8 +278,8 @@ export default function ClimateRiskPredictor(): JSX.Element {
 
       {/* AUTO-FILL INDICATOR */}
       {isAutoFilling && (
-        <div className="mb-3 px-3 py-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700 flex items-center space-x-2">
-          <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
+        <div className="mb-3 px-3 py-2 bg-green-50 border border-green-200 rounded text-xs text-green-700 flex items-center space-x-2">
+          <div className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></div>
           <span>Loading live climate data from Planet...</span>
         </div>
       )}

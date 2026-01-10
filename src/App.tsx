@@ -17,7 +17,7 @@ import ClimateRiskPredictor from './components/ClimateRiskPredictor';
 import { PredictionResult } from './types/disease';
 import { TrainingConfig } from './types/dataset';
 import type { Dataset, Model } from './lib/supabase';
-import { RefreshCw, Info, Database, Brain, MoreVertical, LogOut } from 'lucide-react';
+import { RefreshCw, Info, Brain } from 'lucide-react';
 import { TrainingInterface } from './components/TrainingInterface';
 
 function App() {
@@ -34,7 +34,6 @@ function App() {
   const [models, setModels] = useState<Model[]>([]);
   const [selectedModel, setSelectedModel] = useState<string | null>(null);
   const [isTraining, setIsTraining] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
   const [trainingProgress, setTrainingProgress] = useState({
     currentEpoch: 0,
     totalEpochs: 0,
@@ -93,7 +92,6 @@ function App() {
     await supabase.auth.signOut();
     setUser(null);
     setIsAuthenticated(false);
-    setShowMenu(false);
   };
 
   const handleImageSelect = (file: File) => {
@@ -209,7 +207,7 @@ function App() {
 
   if (isAuthenticated === null) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -260,7 +258,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50">
       <Header 
         user={user} 
         onSignOut={handleSignOut}
@@ -271,7 +269,7 @@ function App() {
       <main className="w-full max-w-7xl mx-auto px-4 py-8">
         {/* Navigation Tabs - ONLY Disease & Climate VISIBLE - CENTERED */}
         <div className="flex justify-center items-center mb-8">
-          <div className="flex space-x-1 bg-white rounded-xl p-1 shadow-sm border border-gray-200">
+          <div className="flex space-x-1 bg-white rounded-xl p-1 shadow-sm border border-green-200">
             {[
               { id: 'predict', label: 'Disease Prediction', icon: Brain },
               { id: 'climate', label: 'Climate Risk', icon: Info },
@@ -284,7 +282,7 @@ function App() {
                 className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
                   activeSection === tab.id
                     ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-md'
-                    : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                    : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
                 }`}
               >
                 <tab.icon className="w-5 h-5" />
@@ -296,16 +294,15 @@ function App() {
 
         {/* Disease Prediction Section */}
         {activeSection === 'predict' && (
-          <>
+          <div className="page-transition">
             <Instructions />
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
               {/* Upload Section */}
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl border border-gray-200 p-8">
-                  <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                    Upload Apple Leaf
-                  </h2>
+              <div className="space-y-6 animate-slide-in-left">
+                <div className="card card-lg">
+                  <h2 className="text-2xl font-bold text-green-900 mb-2">📤 Upload Apple Leaf</h2>
+                  <p className="text-gray-600 text-sm mb-6">Select a clear image of an apple leaf for analysis</p>
 
                   <ImageUpload
                     onImageSelect={handleImageSelect}
@@ -341,9 +338,9 @@ function App() {
                       )}
                       <button
                         onClick={handlePredict}
-                        className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-4 px-6 rounded-xl font-semibold text-lg hover:from-green-700 hover:to-green-800 transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                        className="btn-primary w-full text-lg py-4 flex items-center justify-center space-x-2"
                       >
-                        Analyze Leaf for Diseases
+                        <span>🔍 Analyze Leaf for Diseases</span>
                       </button>
                     </div>
                   )}
@@ -363,16 +360,16 @@ function App() {
               </div>
 
               {/* Results Section */}
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl border border-gray-200 p-8">
+              <div className="space-y-6 animate-slide-in-right">
+                <div className="card card-lg">
                   <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-gray-800">
-                      Analysis Results
+                    <h2 className="text-2xl font-bold text-green-900">
+                      📊 Analysis Results
                     </h2>
                     {predictionResult && (
                       <button
                         onClick={handleReset}
-                        className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors duration-200"
+                        className="flex items-center space-x-2 text-gray-600 hover:text-green-600 transition-colors duration-200"
                       >
                         <RefreshCw className="w-4 h-4" />
                         <span className="text-sm">New Analysis</span>
@@ -382,15 +379,17 @@ function App() {
 
                   {!selectedImage && !isLoading && !predictionResult && (
                     <div className="text-center py-12 text-gray-500">
-                      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Info className="w-8 h-8 text-gray-400" />
+                      <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-green-200 shadow-lg">
+                        <Info className="w-10 h-10 text-green-600" />
                       </div>
-                      <p className="text-lg">
-                        Upload an apple leaf image to see analysis results
+                      <p className="text-xl font-semibold text-gray-800 mb-2">
+                        🍃 Ready to Analyze
                       </p>
-                      <p className="text-sm mt-2">
-                        Our AI will identify diseases and provide treatment
-                        recommendations
+                      <p className="text-base text-gray-600">
+                        Upload an apple leaf image to get instant AI-powered disease detection
+                      </p>
+                      <p className="text-sm mt-3 text-gray-500">
+                        Our advanced model identifies 6 disease types with treatment recommendations
                       </p>
                     </div>
                   )}
@@ -405,12 +404,12 @@ function App() {
             </div>
 
             <DiseasesInfo />
-          </>
+          </div>
         )}
 
         {/* Climate Risk Section */}
         {activeSection === 'climate' && (
-          <div className="mb-8">
+          <div className="mb-8 page-transition">
             <ClimateRiskPredictor />
           </div>
         )}
@@ -442,14 +441,14 @@ function App() {
 
             {/* Models List - Let user select which model to train */}
             {models.length > 0 && (
-              <div className="bg-white p-6 rounded-lg shadow mb-6">
-                <h3 className="text-lg font-bold mb-4">Select Model to Train</h3>
+              <div className="card card-lg mb-6">
+                <h3 className="text-lg font-bold text-green-900 mb-4">📦 Select Model to Train</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {models.map((model) => (
-                    <div key={model.id} className="border p-4 rounded cursor-pointer hover:bg-blue-50"
+                    <div key={model.id} className="border border-green-200 p-4 rounded-lg cursor-pointer hover:bg-green-50 hover:border-green-400 transition-all duration-200"
                       onClick={() => setSelectedModel(model.id)}>
-                      <p className="font-semibold">{model.name}</p>
-                      <p className="text-sm text-gray-600">Status: {model.status}</p>
+                      <p className="font-semibold text-gray-800">{model.name}</p>
+                      <p className="text-sm text-gray-600">Status: <span className="inline-block px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium mt-1">{model.status}</span></p>
                     </div>
                   ))}
                 </div>
@@ -472,10 +471,10 @@ function App() {
         )}
 
         {/* Footer */}
-        <footer className="text-center py-8 text-gray-600">
-          <div className="border-t border-gray-200 pt-8">
+        <footer className="text-center py-8 text-gray-600 border-t border-green-200 mt-12">
+          <div className="pt-8">
             <p className="text-sm">
-              🍃 OrchardIntel: Apple Disease Detector with Planet Climate Risk Advisor • Powered by Advanced Computer Vision •
+              🍃 <span className="font-semibold text-green-700">OrchardIntel</span>: Apple Disease Detector with Planet Climate Risk Advisor • Powered by Advanced Computer Vision •
               For Educational and Research Purposes
             </p>
             <p className="text-xs mt-2 text-gray-500">
@@ -486,7 +485,7 @@ function App() {
               Built by <span className="font-semibold">Zaid Shabir</span> •{' '}
               <a
                 href="mailto:zaidshabir67@gmail.com"
-                className="underline hover:text-gray-700"
+                className="text-green-600 hover:text-green-700 underline"
               >
                 zaidshabir67@gmail.com
               </a>{' '}
@@ -495,7 +494,7 @@ function App() {
                 href="https://github.com/Zai14"
                 target="_blank"
                 rel="noreferrer"
-                className="underline hover:text-gray-700"
+                className="text-green-600 hover:text-green-700 underline"
               >
                 github.com/Zai14
               </a>

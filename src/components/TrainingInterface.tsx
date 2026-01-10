@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { TreePine } from 'lucide-react';
 import { trainer } from '../services/tensorflowTrainer';
 
 export function TrainingInterface({ modelId }: { modelId: string }) {
@@ -45,51 +46,56 @@ export function TrainingInterface({ modelId }: { modelId: string }) {
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow max-w-md">
-      <h2 className="text-2xl font-bold mb-6">Train Your Model</h2>
+    <div className="card card-lg max-w-xl animate-fade-in">
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-green-900 mb-1">🤖 Train Your Model</h2>
+        <p className="text-gray-600 text-sm">Use your labeled datasets to improve accuracy</p>
+      </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
-          {error}
+        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
+          <p className="text-red-800 font-medium text-sm">{error}</p>
         </div>
       )}
 
       {isTraining ? (
-        <div>
-          <div className="mb-4">
-            <div className="flex justify-between text-sm mb-2">
-              <span>Training Progress</span>
-              <span>{progress.toFixed(1)}%</span>
+        <div className="space-y-6">
+          <div>
+            <div className="flex justify-between items-center mb-3">
+              <span className="text-sm font-semibold text-gray-700">Training Progress</span>
+              <span className="badge badge-success">{progress.toFixed(1)}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="progress-bar">
               <div
-                className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+                className="progress-fill"
                 style={{ width: `${progress}%` }}
               ></div>
             </div>
           </div>
 
-          <div className="text-sm text-gray-600 mb-4">
-            <p>Epoch: {currentEpoch} / 50</p>
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <p className="text-green-900 font-semibold text-sm">📊 Epoch: {currentEpoch} / 50</p>
           </div>
 
           {metrics && (
-            <div className="bg-gray-50 p-4 rounded text-sm space-y-2">
-              <div className="flex justify-between">
-                <span>Loss:</span>
-                <span className="font-mono">{metrics.loss?.toFixed(4)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Accuracy:</span>
-                <span className="font-mono">{(metrics.acc * 100).toFixed(2)}%</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Val Loss:</span>
-                <span className="font-mono">{metrics.val_loss?.toFixed(4)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Val Accuracy:</span>
-                <span className="font-mono">{(metrics.val_acc * 100).toFixed(2)}%</span>
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-5 rounded-lg space-y-3">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white rounded-lg p-3 border border-gray-200">
+                  <p className="text-xs text-gray-600 font-medium">Loss</p>
+                  <p className="text-lg font-bold text-green-600 font-mono">{metrics.loss?.toFixed(4)}</p>
+                </div>
+                <div className="bg-white rounded-lg p-3 border border-gray-200">
+                  <p className="text-xs text-gray-600 font-medium">Accuracy</p>
+                  <p className="text-lg font-bold text-green-600 font-mono">{(metrics.acc * 100).toFixed(2)}%</p>
+                </div>
+                <div className="bg-white rounded-lg p-3 border border-gray-200">
+                  <p className="text-xs text-gray-600 font-medium">Val Loss</p>
+                  <p className="text-lg font-bold text-amber-600 font-mono">{metrics.val_loss?.toFixed(4)}</p>
+                </div>
+                <div className="bg-white rounded-lg p-3 border border-gray-200">
+                  <p className="text-xs text-gray-600 font-medium">Val Accuracy</p>
+                  <p className="text-lg font-bold text-amber-600 font-mono">{(metrics.val_acc * 100).toFixed(2)}%</p>
+                </div>
               </div>
             </div>
           )}
@@ -97,9 +103,10 @@ export function TrainingInterface({ modelId }: { modelId: string }) {
       ) : (
         <button
           onClick={startTraining}
-          className="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition"
+          className="btn-primary w-full flex items-center justify-center space-x-2"
         >
-          Start Training
+          <TreePine className="w-5 h-5" />
+          <span>Start Training</span>
         </button>
       )}
     </div>
