@@ -65,6 +65,15 @@ A **React + TypeScript** app for apple leaf disease prediction, dataset manageme
   - ✨ Dust Level (Unknown, Low, Medium, High)
   - 🌊 Drainage (Unknown, Good, Poor)
 
+#### **Disease Prevention Tips**
+- Diseases now display **actionable prevention strategies** instead of technical factors
+- Each disease shows 2 main prevention tips with option to see more
+- Prevention tips are tailored to specific disease conditions:
+  - Apple Scab: Fungicide timing, leaf removal, canopy management
+  - Powdery Mildew: Sulfur application, air circulation, fertilization control
+  - Brown Rot: Fruit thinning, fungicide application, wound prevention
+  - And 6+ more diseases with detailed prevention guides
+
 #### **Auto-prediction on Live Data Load**
 - When Planet map data is fetched (Point or AOI mode), risk analysis automatically runs
 - Climate parameters auto-populate from satellite data
@@ -92,6 +101,43 @@ A **React + TypeScript** app for apple leaf disease prediction, dataset manageme
   - Risk levels: Low, Medium, High, Critical
   - Matched factors displayed (rainfall patterns, wind conditions, etc.)
 - **Auto-fill Form**: All climate data + risk analysis auto-populate parent form
+
+#### **Boundary Management & Visualization**
+- **Saved Boundaries List**: Display all drawn/saved boundaries with metadata
+  - Inline hectare measurements for polygons (✓ calculated)
+  - Climate data badges: 🌡️ Temperature, 🌧️ Rainfall, 💨 Wind Speed
+  - Date stamps for each saved boundary
+  - Rename functionality (✏️ button) for boundary identification
+- **Boundary Selection**: Click saved boundary to load and highlight on map
+  - Selected boundary highlighted in green
+  - Climate data auto-loaded from database
+- **99% Dark Mask Overlay**: When boundary selected:
+  - Entire map darkened except selected boundary area
+  - Creates focused view of target orchard/field
+  - Improves visibility of selected area
+  - Only visible in boundary selection mode
+- **Area Calculations**: 
+  - Polygons: Display square meters, hectares (ha), acres, square feet
+  - Lines: Calculate length in meters, kilometers, feet, miles
+  - Accurate spherical Earth calculations
+- **Multi-geometry Support**: Handle points, lines, polygons, and rectangles
+- **Data Mode Flexibility**:
+  - Point mode: Single location climate fetch
+  - Boundary mode: Aggregated area climate data
+
+### **PlanetMapViewer Component**
+- ✅ Multi-mode drawing (Point, Polygon, Rectangle, Line)
+- ✅ Layer selection with grouping (Vegetation/Disease/Moisture/Visual/Other)
+- ✅ Live button with auto-fill callback
+- ✅ Date range picker for historical imagery
+- ✅ "Locate" button for user coordinates
+- ✅ "Live updates" toggle for real-time data
+- ✅ Boundary-aware 99% dark mask overlay
+- ✅ Area/distance measurements with multiple units
+- ✅ Saved boundaries with climate metadata
+- ✅ Rename boundaries for organization
+- ✅ Inline measurement display (hectares for polygons)
+- ✅ Climate data per-boundary storage
 
 ### Authentication
 - Supabase email/password auth + guest mode
@@ -293,7 +339,11 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 - ✅ Drill-down advanced options to reduce clutter
 - ✅ Dynamic farm health score card below buttons
 - ✅ Color-coded risk summary (High/Medium/Low)
-- ✅ Top 3 risks with matched factors
+- ✅ Single-button toggle for Climate Mode:
+  - 🤖 **Automatic Mode** (Green): Full-width map, auto-fill from Planet data
+  - ✏️ **Manual Mode** (Blue): Side-by-side form + map for manual input
+- ✅ Disease prevention tips (replaces technical factors)
+- ✅ Removed warning from Standard (rule-based) model selector
 - ✅ Auto-loading indicator during Planet data fetch
 - ✅ Responsive 2-column layout (parameters + map)
 
@@ -323,7 +373,23 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
 ## Recent Changes (Latest Commit)
 
-### **Dynamic Farm Health Scoring**
+### **Climate Risk UI Refinements**
+- ✨ Single-button toggle for Climate Mode (Automatic/Manual)
+  - Cleaner interface replacing two-button switch
+  - Full-width button showing current mode with emoji indicator
+  - 🤖 Automatic (Green): Map-focused, auto-filled from Planet API
+  - ✏️ Manual (Blue): Form-focused, manual climate parameter entry
+
+### **Disease Prevention Guide Integration**
+- ✨ Replaced technical "matched factors" display with actionable prevention tips
+- ✨ Added comprehensive prevention database for 9+ apple diseases:
+  - Apple Scab, Apple Leaf Blotch, Powdery Mildew, Brown Rot
+  - Bull's-eye Rot, Sooty Blotch, Flyspeck, Collar/Root Rot, Fireblight
+- ✨ Each disease shows 2 main prevention strategies with count of additional tips
+- ✨ Prevention tips include: fungicide timing, cultural practices, environmental management
+- ✨ Removed ⚠️ warning popup from Standard (rule-based) model selector
+
+### **Previous Phase: Dynamic Farm Health Scoring**
 - ✨ Added climate-based health score calculation (0-100%)
 - ✨ Integrated disease risk assessment into farm health metrics
 - ✨ Implemented auto-prediction when Planet map data is loaded

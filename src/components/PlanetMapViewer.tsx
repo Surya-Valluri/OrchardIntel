@@ -82,6 +82,12 @@ const calculateMeasurement = (geojson: AOIGeoJSON): {
   return { type: 'none' };
 };
 
+// Simple formatter for climate values
+const formatClimate = (val?: number, unit?: string) =>
+  val === undefined || val === null || Number.isNaN(val)
+    ? '—'
+    : `${val.toFixed(1)}${unit ?? ''}`;
+
 const LAYER_IDS = [
   // 🌱 EXISTING (11)
   'EVI', '3_NDVI-L1C', 'MOISTURE-INDEX', '5_MOISTURE-INDEX-L1C',
@@ -181,6 +187,13 @@ export const PlanetMapViewer: React.FC<Props> = ({
   const [savedAOIs, setSavedAOIs] = useState<SavedAOI[]>([]);
   const [loadingAOIs, setLoadingAOIs] = useState(false);
   const [selectedBoundaryId, setSelectedBoundaryId] = useState<string | null>(null);
+
+  // Climate data per saved AOI
+  const [aoiClimateData, setAoiClimateData] = useState<Record<string, {
+    temperature?: number;
+    windSpeed?: number;
+    rainfall?: number;
+  }>>({});
 
   // State for selected boundary details
   const [selectedBoundaryDetails, setSelectedBoundaryDetails] = useState<{
@@ -901,8 +914,18 @@ export const PlanetMapViewer: React.FC<Props> = ({
     }
   };
 
-  const fetchBoundaryData = async (aoiGeoJSON: AOIGeoJSON) => {
+  const fetchBoundaryData = async (aoiGeoJSON: AOIGeoJSON, aoiId?: string) => {
     const response = await sendAOIToBackend(aoiGeoJSON);
+    if (response?.aoiId && response?.climateData) {
+      setAoiClimateData(prev => ({
+        ...prev,
+        [aoiId || response.aoiId]: {
+          temperature: response.climateData.temperature,
+          windSpeed: response.climateData.windSpeed,
+          rainfall: response.climateData.rainfall,
+        },
+      }));
+    }
     if (onAutoFill && response?.climateData) {
       onAutoFill({
         lat: response.center?.lat,
@@ -975,7 +998,7 @@ export const PlanetMapViewer: React.FC<Props> = ({
       mapRef.current.fitBounds(shape.getBounds());
 
       // Fetch climate data for this boundary
-      await fetchBoundaryData(aoi.geojson);
+      await fetchBoundaryData(aoi.geojson, aoi.id);
     }
   };
 
@@ -1120,6 +1143,7 @@ export const PlanetMapViewer: React.FC<Props> = ({
                 <div className="max-h-32 overflow-y-auto space-y-1 mb-3">
                   {savedAOIs.map((aoi) => {
                     const measurement = calculateMeasurement(aoi.geojson);
+                    const climate = aoiClimateData[aoi.id];
                     return (
                       <div
                         key={aoi.id}
@@ -1145,6 +1169,13 @@ export const PlanetMapViewer: React.FC<Props> = ({
                             )}
                             <span>📅 {new Date(aoi.created_at).toLocaleDateString()}</span>
                           </div>
+                          {climate && (
+                            <div className="text-[10px] opacity-90 mt-1 flex items-center gap-3">
+                              <span>🌡️ {formatClimate(climate.temperature, '°C')}</span>
+                              <span>💨 {formatClimate(climate.windSpeed, ' m/s')}</span>
+                              <span>🌧️ {formatClimate(climate.rainfall, ' mm')}</span>
+                            </div>
+                          )}
                         </button>
                         <button
                           onClick={(e) => {
@@ -1163,65 +1194,6 @@ export const PlanetMapViewer: React.FC<Props> = ({
                       </div>
                     );
                   })}
-                </div>
-              </div>
-            )}
-
-            {/* Selected Boundary Details */}
-            {selectedBoundaryDetails && (
-              <div className="mb-4 p-3 bg-green-50 border-l-4 border-green-600 rounded">
-                <div className="text-xs font-semibold text-green-900 mb-2">
-                  📊 Selected Boundary Details
-                </div>
-                <div className="space-y-1 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Name:</span>
-                    <span className="font-medium">{selectedBoundaryDetails.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Type:</span>
-                    <span className="font-medium">{selectedBoundaryDetails.type}</span>
-                  </div>
-                  {selectedBoundaryDetails.measurement.type === 'area' && selectedBoundaryDetails.measurement.area && (
-                    <>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Area (sq ft):</span>
-                        <span className="font-medium">{selectedBoundaryDetails.measurement.area.sqFeet.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Area (sq m):</span>
-                        <span className="font-medium">{selectedBoundaryDetails.measurement.area.sqMeters.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Area (acres):</span>
-                        <span className="font-medium">{selectedBoundaryDetails.measurement.area.acres.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Area (hectares):</span>
-                        <span className="font-medium">{selectedBoundaryDetails.measurement.area.hectares.toFixed(2)}</span>
-                      </div>
-                    </>
-                  )}
-                  {selectedBoundaryDetails.measurement.type === 'length' && selectedBoundaryDetails.measurement.length && (
-                    <>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Length (feet):</span>
-                        <span className="font-medium">{selectedBoundaryDetails.measurement.length.feet.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Length (meters):</span>
-                        <span className="font-medium">{selectedBoundaryDetails.measurement.length.meters.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Length (km):</span>
-                        <span className="font-medium">{selectedBoundaryDetails.measurement.length.kilometers.toFixed(2)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Length (miles):</span>
-                        <span className="font-medium">{selectedBoundaryDetails.measurement.length.miles.toFixed(2)}</span>
-                      </div>
-                    </>
-                  )}
                 </div>
               </div>
             )}

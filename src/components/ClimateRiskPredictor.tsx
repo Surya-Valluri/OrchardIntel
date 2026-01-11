@@ -9,12 +9,79 @@ import PlanetMapViewer from './PlanetMapViewer';
 
 type View = 'Diseases' | 'Pests';
 
+// Prevention strategies for common apple diseases
+const diseasePreventionGuide: Record<string, string[]> = {
+  'Apple Scab': [
+    'Apply fungicides before rain during spring and early summer',
+    'Remove fallen leaves and debris to reduce spore sources',
+    'Ensure good canopy air circulation through pruning',
+    'Avoid overhead irrigation that increases leaf wetness',
+    'Use resistant apple varieties when possible',
+  ],
+  'Apple Leaf Blotch (Alternaria)': [
+    'Remove infected leaves and fallen debris promptly',
+    'Improve air circulation through canopy management',
+    'Apply preventive fungicides during warm, humid periods',
+    'Sanitize pruning tools to prevent spread',
+    'Maintain balanced nitrogen fertilization',
+  ],
+  'Powdery Mildew': [
+    'Apply sulfur or other fungicides during growing season',
+    'Ensure adequate air flow by proper pruning',
+    'Avoid over-fertilizing with nitrogen',
+    'Remove infected leaves and shoots',
+    'Plant resistant varieties in new orchards',
+  ],
+  'Brown Rot': [
+    'Remove mummified fruit and dead twigs from trees',
+    'Apply fungicides during bloom and fruit development',
+    'Thin fruits to allow better air circulation',
+    'Harvest carefully to avoid fruit wounds',
+    'Control insects to prevent fruit entry points',
+  ],
+  "Bull's‑eye Rot": [
+    'Remove fruit with lenticels wounds during storage',
+    'Maintain good orchard sanitation',
+    'Store fruit at optimal humidity (90-95%) and temperature',
+    'Apply fungicides to fruit before storage',
+    'Ensure proper harvest technique to minimize skin damage',
+  ],
+  'Sooty Blotch': [
+    'Improve air circulation by pruning lower branches',
+    'Apply fungicides mid-summer through fruit development',
+    'Reduce humidity through better canopy management',
+    'Thin fruit clusters for better exposure',
+    'Manage nearby fruit flies to reduce fungal transport',
+  ],
+  'Flyspeck': [
+    'Prune to improve air circulation within canopy',
+    'Apply fungicides mid to late summer',
+    'Manage humidity levels in the orchard',
+    'Remove infected fruit before storage',
+    'Sanitize storage facilities',
+  ],
+  'Collar / Root Rot': [
+    'Improve soil drainage through orchard management',
+    'Avoid waterlogging by controlling irrigation',
+    'Remove affected trees if disease is severe',
+    'Use resistant rootstocks when replanting',
+    'Maintain proper tree spacing for air flow',
+  ],
+  'Fireblight': [
+    'Prune out infected branches 12 inches below canker',
+    'Sterilize tools between cuts to prevent spread',
+    'Avoid nitrogen over-fertilization',
+    'Apply copper or antibiotic sprays at bloom time',
+    'Remove branches with active oozing cankers',
+  ],
+};
+
 export default function ClimateRiskPredictor(): JSX.Element {
   const [view, setView] = useState<View>('Diseases');
   const [riskModel, setRiskModel] = useState<'standard' | 'meta'>('standard');
-  const [showStandardWarning, setShowStandardWarning] = useState(false);
   const [isAutoFilling, setIsAutoFilling] = useState(false);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [showClimateForm, setShowClimateForm] = useState(false);
 
   const [viewParams, setViewParams] = useState<any>({
     temperature: 20,
@@ -284,9 +351,22 @@ export default function ClimateRiskPredictor(): JSX.Element {
         </div>
       )}
 
-      {/* 2-column layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-4 flex-1 overflow-hidden">
-        {/* LEFT PANEL: Climate inputs */}
+      {/* Toggle Button for Climate Form */}
+      <button
+        onClick={() => setShowClimateForm(!showClimateForm)}
+        className={`mb-3 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm ${
+          showClimateForm
+            ? 'bg-blue-600 text-white hover:bg-blue-700'
+            : 'bg-green-600 text-white hover:bg-green-700'
+        }`}
+      >
+        {showClimateForm ? '✏️ Manual Mode' : '🤖 Automatic Mode'}
+      </button>
+
+      {/* 2-column layout - hide left panel unless form is shown */}
+      <div className={`grid gap-4 flex-1 overflow-hidden ${showClimateForm ? 'grid-cols-1 lg:grid-cols-[1fr_1.6fr]' : 'grid-cols-1'}`}>
+        {/* LEFT PANEL: Climate inputs - only shown if toggled */}
+        {showClimateForm && (
         <div className="flex flex-col gap-3 overflow-y-auto pr-2">
           {/* Risk Model */}
           <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-3 rounded-lg border border-gray-200">
@@ -303,24 +383,6 @@ export default function ClimateRiskPredictor(): JSX.Element {
                 <option value="meta">📊 Meta (range-based)</option>
               </select>
             </div>
-
-            {riskModel === 'standard' && (
-              <div className="mb-2">
-                <button
-                  type="button"
-                  onClick={() => setShowStandardWarning((v) => !v)}
-                  className="text-orange-600 text-xs font-semibold underline hover:text-orange-700 transition-colors"
-                >
-                  ⚠️ Warning
-                </button>
-                {showStandardWarning && (
-                  <p className="mt-2 text-[11px] text-orange-700 bg-orange-50 p-2.5 rounded border border-orange-200">
-                    Rule-based model may not predict complex conditions
-                    accurately. Use Meta for range-based scoring.
-                  </p>
-                )}
-              </div>
-            )}
           </div>
 
           {/* Climate Parameters */}
@@ -596,8 +658,9 @@ export default function ClimateRiskPredictor(): JSX.Element {
             </div>
           </div>
         </div>
+        )}
 
-        {/* RIGHT PANEL: Planet Map Viewer */}
+        {/* RIGHT PANEL: Planet Map Viewer - full width unless climate form is shown */}
         <div className="h-full overflow-hidden rounded-lg border border-gray-200">
           <PlanetMapViewer
             initialLat={viewParams.latitude ?? 34.1}
@@ -667,17 +730,17 @@ export default function ClimateRiskPredictor(): JSX.Element {
                 </div>
                 {r.matchedFactors.length > 0 && (
                   <div className="mt-2 text-[11px] text-gray-600 bg-white p-1.5 rounded border border-gray-100">
-                    <div className="font-medium text-gray-700 mb-1">
-                      Factors:
+                    <div className="font-medium text-gray-700 mb-1.5">
+                      💡 Prevention Tips:
                     </div>
-                    {r.matchedFactors.slice(0, 2).map((f: string) => (
-                      <div key={f} className="text-gray-600">
-                        ✓ {f}
+                    {(diseasePreventionGuide[r.name] || []).slice(0, 2).map((tip: string) => (
+                      <div key={tip} className="text-gray-600 mb-1 leading-tight">
+                        • {tip}
                       </div>
                     ))}
-                    {r.matchedFactors.length > 2 && (
-                      <div className="text-gray-500 text-[10px] mt-1">
-                        +{r.matchedFactors.length - 2} more
+                    {(diseasePreventionGuide[r.name] || []).length > 2 && (
+                      <div className="text-gray-500 text-[10px] mt-1.5 pt-1 border-t border-gray-100">
+                        +{diseasePreventionGuide[r.name].length - 2} more prevention strategies
                       </div>
                     )}
                   </div>
